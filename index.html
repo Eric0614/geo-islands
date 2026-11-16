@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>地科群島｜學測地科闖關</title>
+<style>
+:root{--ink:#16323f;--muted:#5e7a85;--paper:#ffffff;--line:#d9e6ea;--sea1:#bfe9ee;--sea2:#e9f7f5;--accent:#0b7f95;--accent-ink:#fff;--soft:#eef7f7;--ok:#1c8a55;--bad:#c2452f;--gold:#e5a13a;--shadow:0 10px 28px rgba(18,60,74,.14)}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;color:var(--ink);background:linear-gradient(var(--sea1),var(--sea2) 55%);font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",system-ui,sans-serif;line-height:1.7;min-height:100vh}
+button{font:inherit;cursor:pointer;border:0}
+button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+[hidden]{display:none!important}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;background:rgba(255,255,255,.93);border-bottom:1px solid var(--line);backdrop-filter:blur(10px)}
+.brand{display:flex;align-items:center;gap:10px;background:none;padding:0;color:inherit;text-align:left}
+.brand b{font-size:18px;letter-spacing:.06em}
+.brand small{display:block;font-size:11px;color:var(--muted)}
+.logo{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:linear-gradient(135deg,#9fe0d2,#0c9dba)}
+.pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;color:var(--ink)}
+.pill:hover{background:var(--soft)}
+.wrap{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+.banner{border-radius:14px;padding:10px 14px;font-size:14px;font-weight:700;margin-bottom:12px}
+.banner.due{background:#fff3d9;border:1px solid #f0cf8a;color:#7a4d00}
+.banner.debug{background:#ffe4de;border:1px solid #f1a999;color:#8a2412}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}
+.stat b{display:block;font-size:22px;color:var(--accent)}
+.stat span{font-size:12px;color:var(--muted)}
+h1{font-size:clamp(22px,4.5vw,32px);margin:6px 0 4px;letter-spacing:.02em}
+.lead{margin:0 0 14px;color:var(--muted);font-size:14px}
+/* 島嶼地圖 */
+.map{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.isle{grid-column:span 2;position:relative;border-radius:46% 54% 52% 48%/55% 46% 54% 45%;min-height:190px;padding:26px 18px 22px;color:#fff;text-align:center;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:transform .18s;overflow:hidden}
+.isle:nth-child(4),.isle:nth-child(5){grid-column:span 3}
+.isle:not(.locked):hover{transform:translateY(-4px) scale(1.02)}
+.isle .ico{font-size:40px;line-height:1.1}
+.isle b{font-size:19px;letter-spacing:.08em}
+.isle small{font-size:12px;opacity:.92}
+.isle .prog{margin-top:6px;font-size:12px;font-weight:700;background:rgba(255,255,255,.22);border-radius:999px;padding:3px 12px}
+.isle.locked{filter:grayscale(.75) brightness(.95);cursor:not-allowed;opacity:.8}
+.isle.hasdue{animation:pulse 1.4s infinite}
+.isle .crown{position:absolute;top:10px;right:22%;font-size:22px}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(229,161,58,.85),var(--shadow)}50%{box-shadow:0 0 0 12px rgba(229,161,58,0),var(--shadow)}}
+/* 五島主題 */
+.t-ast{--c1:#1b1b4b;--c2:#5a3d9a;--accent:#5a3d9a;--soft:#f0ecfa;background:radial-gradient(circle at 20% 20%,#fff 0 1px,transparent 2px),radial-gradient(circle at 70% 30%,#fff 0 1.2px,transparent 2px),radial-gradient(circle at 45% 75%,#ffe9a8 0 1.4px,transparent 2.4px),radial-gradient(circle at 85% 70%,#fff 0 1px,transparent 2px),linear-gradient(140deg,var(--c1),var(--c2))}
+.t-atm{--c1:#3d9be0;--c2:#a7dcf7;--accent:#1f7fc4;--soft:#e8f4fd;background:radial-gradient(ellipse at 25% 30%,rgba(255,255,255,.75) 0 14%,transparent 15%),radial-gradient(ellipse at 72% 68%,rgba(255,255,255,.6) 0 12%,transparent 13%),linear-gradient(160deg,var(--c1),var(--c2))}
+.t-geo{--c1:#7a4a22;--c2:#c48a4a;--accent:#8a5524;--soft:#f8efe3;background:repeating-linear-gradient(168deg,rgba(255,255,255,.14) 0 6px,transparent 6px 22px),linear-gradient(150deg,var(--c1),var(--c2))}
+.t-ocn{--c1:#075a78;--c2:#1fb3b3;--accent:#087f8f;--soft:#e3f6f5;background:repeating-radial-gradient(ellipse at 50% 120%,rgba(255,255,255,.16) 0 4px,transparent 4px 18px),linear-gradient(160deg,var(--c1),var(--c2))}
+.t-env{--c1:#8f2a1c;--c2:#ef8a3c;--accent:#b6421f;--soft:#fdeee4;background:radial-gradient(circle at 50% 110%,rgba(255,220,120,.55) 0 30%,transparent 31%),linear-gradient(155deg,var(--c1),var(--c2))}
+/* 島內 */
+.hero{border-radius:22px;padding:22px 20px;color:#fff;box-shadow:var(--shadow);margin-bottom:16px}
+.hero h2{margin:0;font-size:24px;letter-spacing:.06em}
+.hero p{margin:4px 0 0;font-size:14px;opacity:.95}
+.levels{display:grid;gap:12px}
+.lv{display:flex;align-items:center;gap:14px;background:#fff;border:2px solid var(--line);border-radius:18px;padding:14px 16px;text-align:left;width:100%;color:inherit;transition:border-color .15s,transform .15s}
+.lv:hover{border-color:var(--accent);transform:translateX(3px)}
+.lv .num{flex:0 0 46px;height:46px;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#fff;background:var(--accent);font-size:20px}
+.lv.done .num{background:var(--ok)}
+.lv.due{border-color:var(--gold);animation:pulse 1.4s infinite}
+.lv b{display:block;font-size:17px}
+.lv small{color:var(--muted);font-size:13px}
+.tag{display:inline-block;font-size:11px;font-weight:800;border-radius:999px;padding:2px 9px;margin-left:6px;vertical-align:middle;background:var(--soft);color:var(--accent)}
+.tag.gold{background:#fff3d9;color:#8a5a00}
+.tag.ok{background:#e2f5ea;color:var(--ok)}
+/* 關卡內容 */
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:var(--shadow);margin-bottom:14px}
+.card h3{margin:0 0 8px;font-size:19px;color:var(--accent)}
+.card h4{margin:14px 0 4px;font-size:15px}
+.card ul{margin:4px 0;padding-left:20px}
+.card li{margin:3px 0;font-size:15px}
+.trap{background:#fff7e8;border-left:4px solid var(--gold);border-radius:10px;padding:8px 12px;margin-top:10px;font-size:14px}
+.btn{background:var(--accent);color:#fff;border-radius:14px;padding:12px 22px;font-weight:800;font-size:16px}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:#fff;color:var(--accent);border:2px solid var(--accent)}
+.btn.bad{background:#fff;color:var(--bad);border:2px solid var(--bad)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.steps{display:flex;gap:6px;margin-bottom:12px}
+.steps i{flex:1;height:7px;border-radius:99px;background:var(--line)}
+.steps i.on{background:var(--accent)}
+.steps i.ok{background:var(--ok)}
+.steps i.no{background:var(--bad)}
+.q{font-size:17px;font-weight:700;margin:4px 0 12px}
+.src{font-size:12px;color:var(--muted);margin-bottom:6px}
+.opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 14px;margin:8px 0;font-size:16px;color:inherit}
+.opt:hover:not(:disabled){border-color:var(--accent);background:var(--soft)}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--ok);background:#e9f8ef}
+.opt.wrong{border-color:var(--bad);background:#fdece8}
+.why{font-size:13.5px;border-radius:10px;padding:6px 10px;margin:-2px 0 8px;background:#f5f8f9;color:#3d5560}
+.why.right{background:#e9f8ef;color:#12613a}
+.result{text-align:center}
+.result .big{font-size:60px;line-height:1.1}
+.result h3{font-size:24px;margin:6px 0}
+.badge{display:inline-grid;place-items:center;width:110px;height:110px;border-radius:50%;font-size:50px;color:#fff;background:conic-gradient(from 0deg,var(--gold),#ffe19c,var(--gold));box-shadow:0 0 0 8px #fff,0 8px 24px rgba(0,0,0,.18);margin:8px 0;animation:pop .5s ease-out}
+@keyframes pop{from{transform:scale(.3) rotate(-30deg);opacity:0}to{transform:none;opacity:1}}
+table.sched{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+table.sched td,table.sched th{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left}
+textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:12px;padding:10px;font:13px/1.5 ui-monospace,Consolas,monospace}
+.foot{margin-top:26px;font-size:12px;color:var(--muted);text-align:center}
+@media (max-width:640px){
+  .map{grid-template-columns:repeat(2,1fr);gap:10px}
+  .isle,.isle:nth-child(4),.isle:nth-child(5){grid-column:span 1;min-height:150px;padding:18px 10px}
+  .isle:nth-child(5){grid-column:span 2}
+  .isle .ico{font-size:32px}.isle b{font-size:16px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .brand small{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ===== 第二版畫面：立體感群島＋貓島民（參考政策島的版面配置） ===== */
+:root{--cream:#fbf3ec;--card:#fffaf5;--ink:#1f1a17;--muted:#7a6f66;--line:#eadfd3;--orange:#e0673a}
+body{background:var(--cream)}
+.top{background:rgba(251,243,236,.94);border-bottom:1px solid var(--line)}
+.brand b{letter-spacing:.12em}
+.logo{background:var(--orange);color:#fff;font-weight:900;font-size:13px;letter-spacing:.02em}
+.pill{border-color:var(--line);background:var(--card)}
+.wrap.wide{max-width:1280px}
+.world{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+.scene-box{position:relative;border-radius:24px;overflow:hidden;border:1px solid var(--line);box-shadow:0 14px 34px rgba(60,40,20,.12);background:#c9d6ad}
+.scene-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.scene{display:block;width:100%;min-width:700px;height:auto}
+.scene-brand{position:absolute;left:14px;top:14px;background:rgba(255,250,245,.93);border-radius:16px;padding:10px 14px;line-height:1.15;box-shadow:0 4px 14px rgba(60,40,20,.12);pointer-events:none}
+.scene-brand i{display:block;font-style:normal;font-weight:900;font-size:22px;color:var(--orange);letter-spacing:.02em}
+.scene-brand b{font-size:15px;letter-spacing:.2em}
+.scene-hint{position:absolute;right:12px;bottom:10px;font-size:11px;background:rgba(255,250,245,.9);border-radius:99px;padding:3px 10px;color:var(--muted);pointer-events:none}
+.tile{cursor:pointer;outline:none}
+.tile.locked{cursor:not-allowed}
+.tile .face{transition:filter .15s}
+.tile:not(.locked):hover .face,.tile:focus-visible .face{filter:brightness(1.12)}
+.tile:focus-visible .ring{stroke:#1f1a17;stroke-width:3}
+.tile.due .ring{stroke:#f2b93b;stroke-width:4;animation:blink 1.1s infinite}
+@keyframes blink{50%{stroke-opacity:.15}}
+.bob{animation:bob 2.2s ease-in-out infinite}
+.bob.b2{animation-delay:-.7s}.bob.b3{animation-delay:-1.4s}
+@keyframes bob{50%{transform:translateY(-2.5px)}}
+.emp{animation:hop 1.3s ease-in-out infinite}
+@keyframes hop{50%{transform:translateY(-6px)}}
+.boat{animation:sail 9s ease-in-out infinite alternate}
+@keyframes sail{to{transform:translateX(26px)}}
+.legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:9px 14px;background:var(--card);border-top:1px solid var(--line);font-size:12.5px}
+.legend b{letter-spacing:.12em;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px;font-weight:700}
+.legend i{width:22px;height:0;border-top:3px dashed transparent;border-radius:2px;height:4px}
+.lgbtn{margin-left:auto;background:#fff;border:1px solid var(--line);border-radius:99px;padding:3px 12px;font-size:12px;font-weight:700;color:var(--ink)}
+.flow{animation:flow 1.6s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-26}}
+.scene-hint{bottom:auto;top:12px}
+.side{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:18px 16px;box-shadow:0 14px 34px rgba(60,40,20,.08)}
+.side .eyebrow{font-size:11px;letter-spacing:.22em;color:var(--orange);font-weight:800}
+.side h1{font-size:24px;margin:2px 0 4px}
+.side .lead{margin:0 0 12px;font-size:13px}
+.me{display:flex;gap:10px;align-items:center;border:1px solid #f1cdb9;background:#fff3ea;border-radius:16px;padding:10px 12px;margin-bottom:10px;width:100%;text-align:left;color:inherit}
+.me b{display:block;font-size:15px}.me small{font-size:12.5px;color:var(--muted)}
+.me.due{border-color:#f0cf8a;background:#fff3d9}
+.mini{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+.mini div{text-align:center;border:1px solid var(--line);border-radius:12px;padding:6px 2px;background:#fff}
+.mini b{display:block;font-size:17px;color:var(--orange)}.mini span{font-size:10.5px;color:var(--muted)}
+.grp{font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--muted);margin:14px 0 2px;display:flex;justify-content:space-between}
+.item{display:flex;align-items:center;gap:10px;width:100%;background:none;text-align:left;padding:9px 4px;border-bottom:1px solid var(--line);color:inherit}
+.item:hover:not(:disabled){background:#fff3ea}
+.item:disabled{opacity:.45;cursor:not-allowed}
+.item .no{font:italic 700 20px Georgia,"Times New Roman",serif;color:var(--orange);flex:0 0 32px}
+.item .nm{flex:1;font-size:14.5px;font-weight:700;line-height:1.35}
+.item .nm small{display:block;font-weight:400;font-size:11.5px;color:var(--muted)}
+.item .st{font-size:11px;font-weight:800;border-radius:99px;padding:2px 8px;white-space:nowrap;background:#f3ece4;color:var(--muted)}
+.item .st.ok{background:#e2f5ea;color:#1c8a55}.item .st.due{background:#fff3d9;color:#8a5a00}
+.say{display:flex;gap:12px;align-items:flex-start;margin:0 0 14px}
+.say .ava{flex:0 0 68px;width:68px;height:68px;border-radius:50%;background:#fff;border:2px solid var(--line);display:grid;place-items:center;overflow:hidden}
+.say .bub{position:relative;flex:1;background:#fff;border:1px solid var(--line);border-radius:6px 18px 18px 18px;padding:10px 14px;box-shadow:0 4px 12px rgba(60,40,20,.07)}
+.say .bub b{font-size:12.5px;color:var(--accent)}
+.say .bub p{margin:2px 0 0;font-size:15px}
+.badge{background:conic-gradient(from 0deg,#f2b93b,#ffe9b0,#f2b93b);overflow:hidden}
+.badge svg{background:#fffaf5;border-radius:50%}
+.card{border-color:var(--line)}
+@media (max-width:900px){.world{grid-template-columns:1fr}}
+@media (max-width:640px){.scene-brand i{font-size:17px}.scene-brand b{font-size:12px}.say .ava{flex-basis:54px;width:54px;height:54px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="brand" id="homeBtn" aria-label="回到群島地圖"><span class="logo">🐾</span><span><b>地科群島</b><small>喵皇出巡・5 島 16 關</small></span></button>
+  <button class="pill" id="saveBtn">💾 進度備份</button>
+</header>
+<main class="wrap" id="app"></main>
+
+<!-- ============ 資料區：關卡內容（補題、校對只改這一段） ============ -->
+<script id="geo-data">
+const INTERVALS=[1,3,7,16,35]; // 第 1~5 次複習：自「週期基準日」累計的天數
+const ISLANDS=[
+{id:"ast",theme:"t-ast",icon:"🌌",name:"天文島",sub:"星空、恆星與曆法",ready:true,levels:[
+ {id:"AST-01",name:"觀測尺度與望遠鏡",pages:"講義 p35-40",
+  note:{core:["電磁波依波長由長到短：無線電波、紅外線、可見光、紫外線、X 光、γ 射線。","地球大氣只讓兩段波長順利通過，稱為「大氣窗」：可見光與無線電波。所以光學望遠鏡和電波望遠鏡可以蓋在地面。","紅外線會被水氣吸收，要放在乾燥的高山或太空；紫外線、X 光、γ 射線幾乎被高層大氣擋光，一定要上太空。","宇宙的階層由大到小：宇宙、星系群、星系、星團、恆星、行星、衛星。星雲是恆星誕生或死亡的場所，多半在自己的星系裡面。","距離單位：天文單位（AU，日地距離）用在太陽系內；光年與秒差距用在恆星與星系。1 秒差距約 3.26 光年。"],
+   trap:["「高山、沙漠、沒有光害」只對可見光有幫助，擋不住大氣對 X 光的吸收。","梅西爾編號（M31、M42）只是目錄順序，和遠近無關。","看起來小不等於比較遠，要先判斷它是「星系」還是「銀河系裡的天體」。","星等數字越大越暗；多收 100 倍的光可以多看暗 5 等，約 2.512 倍多看 1 等。"]},
+  qs:[
+   {src:"講義 p17 第 5 題（96 學測）改寫",q:"天文台規劃了幾種望遠鏡。哪一組「非得送上太空」才能觀測？",opts:["可見光望遠鏡與無線電波望遠鏡","無線電波望遠鏡與紅外線望遠鏡","X 光望遠鏡與 γ 射線望遠鏡","可見光望遠鏡與紅外線望遠鏡"],ans:2,why:["這兩種波段剛好是大氣窗，地面就能觀測。","無線電波可穿過大氣；紅外線在乾燥高山也能做部分觀測，不是一定要上太空。","X 光與 γ 射線會被高層大氣完全吸收，地面收不到，只能上太空。","可見光在地面就能看；紅外線在高山可做部分觀測。"]},
+   {src:"講義 p18 第 8 題（101 學測）改寫",q:"要觀測星系碰撞放出的 X 光，望遠鏡最適合放在哪裡？",opts:["視野遼闊的高原","沒有光害的高山","大氣擾動少的沙漠","繞地球的軌道上，並避開范艾倫輻射帶"],ans:3,why:["高原仍在大氣層底下，X 光到不了。","沒有光害只對可見光有幫助。","大氣穩定只改善可見光的影像，X 光一樣被吸收。","X 光必須在大氣層外觀測；輻射帶裡的高能帶電粒子會干擾儀器，所以要避開。"]},
+   {src:"講義 p23 第 27 題（101 學測）改寫",q:"仙女座的 M31 是渦狀星系，獵戶座的 M42 是發射星雲，而且 M42 看起來比 M31 小。兩者與太陽的距離關係何者正確？",opts:["M 編號依距離排序，所以 M42 比較遠","M42 看起來比較小，所以比較遠","一個是星系、一個是星雲，但距離差不多","M31 是銀河系外的星系，所以比銀河系內的 M42 遠"],ans:3,why:["梅西爾編號只是目錄順序，和距離無關。","視覺大小還跟天體本身的大小有關，不能直接判斷遠近。","星系在銀河系之外，距離是數百萬光年；星雲在銀河系內，只有上千光年。","肉眼看得到的星雲都在銀河系內，另一個星系一定遠得多。"]},
+   {src:"講義 p18 第 10 題（100 學測）改寫",q:"某望遠鏡曝光 1 分鐘，最暗可拍到 20 等的恆星。感光元件收到的光量與曝光時間成正比，曝光 40 分鐘最暗可拍到幾等？",opts:["16 等","20 等","24 等","28 等"],ans:2,why:["方向反了：星等數字越大越暗，收更多光是看到數字更大的星。","曝光變長，收到的光變多，極限一定會改變。","光量變 40 倍，約等於 2.512 的 4 次方，所以可以多暗 4 等，20＋4＝24。","多暗 8 等需要約 1600 倍的光量，40 倍不夠。"]}
+  ]},
+ {id:"AST-02",name:"恆星性質與星等",pages:"講義 p2-15",
+  note:{core:["星等數字越小越亮。差 1 等亮度差約 2.512 倍，差 5 等剛好差 100 倍。","視星等（m）是從地球看到的亮度，受距離影響。絕對星等（M）是把恆星放到 10 秒差距（32.6 光年）時的亮度，代表真正的發光能力。","比較 m 和 M 就能判斷遠近：m 比 M 大（看起來比較暗），代表比 32.6 光年遠；m 比 M 小，代表比較近。","恆星顏色看表面溫度：藍白色最熱，黃色中等，紅色最冷。","光度與「表面積 × 表面溫度的四次方」成正比。又紅（冷）又亮的星，一定非常巨大，這就是紅超巨星。"],
+   trap:["差 2 等不是 2 倍也不是 4 倍，是 2.512²，約 6.3 倍。","計算技巧：先湊 5 的倍數。差 14 等＝差 15 等（100 萬倍）再除以 2.512。","行星不會自己發光，它的顏色來自表面物質，不代表溫度。","公式 M＝m＋5−5log d 的 d 一定要用秒差距，不是光年。"]},
+  qs:[
+   {src:"講義 p16 第 1 題（96 學測）改寫",q:"滿月約 −12 等，太陽約 −26 等。太陽的亮度大約是滿月的幾倍？",opts:["約 14 萬倍","約 25 萬倍","約 40 萬倍","約 100 萬倍"],ans:2,why:["星等差 14 不能直接當成倍數的數字。","把每 1 等當成 2 倍去折算才會得到這個數字，但 1 等是約 2.512 倍。","差 14 等＝2.512 的 15 次方（100 萬倍）除以 2.512，約 40 萬倍。","100 萬倍是差 15 等，題目只差 14 等。"]},
+   {src:"講義 p18 第 12 題（99 學測）改寫（數值已更換）",q:"四顆恆星的（視星等，絕對星等）分別是：甲（5，7）、乙（9，12）、丙（6，8）、丁（4，2）。哪一顆與地球的距離大於 32.6 光年？",opts:["甲","乙","丙","丁"],ans:3,why:["甲的視星等比絕對星等小，看起來比標準距離時亮，所以比 32.6 光年近。","乙的視星等比絕對星等小，比 32.6 光年近。","丙的視星等比絕對星等小，比 32.6 光年近。","丁的視星等（4）比絕對星等（2）大，看起來比放在 32.6 光年時還暗，所以更遠。"]},
+   {src:"講義 p23 第 28 題（101 學測）改寫",q:"恆星光度與「表面積」成正比，也與「表面溫度四次方」成正比。織女星絕對星等 0、表面溫度 10,000 K；太陽絕對星等 5、表面溫度 6,000 K。織女星的半徑約為太陽的幾倍？",opts:["約 1.2 倍","約 3.6 倍","約 7.7 倍","約 10 倍"],ans:1,why:["絕對星等差 5 等，光度差 100 倍，半徑不可能只差一點點。","光度比 100＝半徑比的平方 × 溫度比的四次方（約 7.7），半徑比的平方約 13，開根號約 3.6。","7.7 是溫度比的四次方，還沒算到半徑。","10 是只把光度 100 倍開根號，忘了扣掉溫度的影響。"]},
+   {src:"講義 p18 第 9 題（100 學測）改寫",q:"天蠍座的心宿二和火星看起來都是紅色。兩者呈現紅色的原因何者正確？",opts:["兩者都是因為表面溫度","心宿二是因為表面溫度，火星是因為表面化學組成","心宿二是因為表面化學組成，火星是因為表面溫度","兩者都是因為表面化學組成"],ans:1,why:["火星是行星，不會自己發光，顏色不是溫度造成的。","心宿二是恆星，顏色反映表面溫度（紅色代表溫度低）；火星反射陽光，紅色來自表面的氧化鐵。","兩個原因放反了。","恆星的顏色由表面溫度決定，不是化學組成。"]}
+  ]},
+ {id:"AST-03",name:"太陽與太陽系",pages:"講義 p2-15（併入第 3 週）",
+  note:{core:["太陽由內到外六層：核心、輻射層、對流層、光球層、色球層、日冕。核心進行核融合，是能量的來源。","溫度不是越外面越低：核心最高，其次是最外層的日冕，光球層（約 6000 K）反而比較低。","太陽風是持續向外流的高能帶電粒子。地球磁場擋住大部分，粒子從兩極附近進入大氣，撞擊氣體而產生極光。","黑子是光球層上溫度較低的區域，數量約 11 年一個週期。","類地行星（水金地火）小而密度大；類木行星（木土天海）大而密度小、衛星多。","行星的白天天空亮不亮，要看有沒有大氣散射陽光。月球和水星幾乎沒有大氣，白天天空也是黑的。"],
+   trap:["太陽的能量來自核融合，不是太陽風。","太陽風是帶電粒子，所以會被磁場引導到兩極，不是赤道受影響最大。","古人分不出「誰自己發光」，他們是看到行星在星空背景中會移動，才叫它「行」星。","最鄰近地球、又比地球靠近太陽的行星是金星，不是火星。"]},
+  qs:[
+   {src:"講義 p17 第 4 題（102 學測）改寫",q:"有些帶電微粒會逃離太陽進入太空，稱為太陽風。下列敘述何者正確？",opts:["太陽風是太陽能量的主要來源","太陽風主要是不帶電的高能粒子","地球赤道正對太陽，受太陽風影響最大","地球南北兩極上空的氣體被太陽風撞擊後，會產生極光"],ans:3,why:["太陽的能量來自核心的核融合。","太陽風是帶電粒子，所以才會受地球磁場影響。","帶電粒子被磁場引導，從兩極附近進入大氣，不是赤道。","粒子沿磁力線進入兩極上空，撞擊大氣氣體使其發光，就是極光。"]},
+   {src:"講義 p17 第 6 題（101 學測）改寫",q:"夜空中的光點幾乎都是恆星，只有少數幾顆是行星。古人是用什麼方法分辨出行星的？",opts:["看顏色，行星和恆星顏色不同","因為恆星自己發光，行星不發光","行星都比恆星亮","看它們在天上移動的軌跡"],ans:3,why:["恆星和行星都有各種顏色，無法用顏色區分。","這是現代的定義，古人無法知道誰自己發光。","有些恆星比行星亮，亮度不能當作判斷依據。","恆星彼此的相對位置固定，行星卻會在星空背景中移動。"]},
+   {src:"講義 p23 第 26 題（102 學測）改寫",q:"下列關於火星的敘述，何者正確？",opts:["火星和月球一樣是地球的衛星","火星是最鄰近地球、而且比地球靠近太陽的行星","火星繞太陽的週期與地球相同，所以也有四季","火星繞太陽的軌道是橢圓，公轉一圈的時間比地球的一年長"],ans:3,why:["火星是繞太陽運行的行星，不是衛星。","符合這個描述的是金星，火星在地球軌道外側。","火星離太陽比較遠，公轉週期比地球長。","行星軌道都是橢圓；離太陽越遠，公轉一圈越久。"]},
+   {src:"講義 p19 第 13 題（100 學測）改寫。講義此題未標答案，答案依大氣散射原理推導",q:"太空人在月球的白天看到天空是黑的，地球的白天天空卻是亮的。依同樣的道理，比較水星、地球、火星白天的天空，何者合理？",opts:["水星比火星亮","水星比地球亮","火星比水星亮","三者一樣亮"],ans:2,why:["水星幾乎沒有大氣，天空像月球一樣是黑的。","地球大氣最濃厚，散射最多陽光，天空最亮。","天空的亮度來自大氣散射陽光。火星有稀薄大氣，水星幾乎沒有，所以火星比較亮。","三者大氣差異很大，天空亮度不會相同。"]}
+  ]},
+ {id:"AST-04",name:"天球運動與曆法",pages:"講義 p16-34",
+  note:{core:["地球由西向東自轉，所以天體東升西落。面向北方看，星星繞著天球北極逆時針轉。","地球 24 小時轉 360°，每小時 15°，每 1° 需要 4 分鐘。量星軌弧的圓心角就能算曝光時間。","北極星的仰角等於觀測地的緯度。北極星很靠近天球北極，但不是正好在那一點。","正午太陽的位置：天頂對應觀測地緯度，太陽對應當天直射的緯度，兩者相減就是太陽離天頂的角度。","地球公轉軌道是橢圓：1 月初離太陽最近，公轉最快；7 月初最遠，公轉最慢。","日食一定發生在朔（農曆初一），月食一定發生在望（農曆十五左右）。越西邊的地方，日落越晚。"],
+   trap:["看到「夏至」不要直接套日出方位口訣，先看題目問的是方位還是正午高度。","星軌的圓心是天球北極，不是北極星本身。","春分到秋分（經過 7 月）比秋分到春分多了約 7 天，原因是公轉速率不同，和自轉無關。","日食當天是新月，晚上看不到月亮。"]},
+  qs:[
+   {src:"講義 p17 第 7 題（96 學測）改寫（原題為照片，改以圓心角描述）",q:"面向北方長時間曝光拍星空，照片上每條星軌弧的圓心角約 35°。下列敘述何者正確？",opts:["星星逆時針旋轉，曝光約 2 小時多，圓弧的中心是天球北極","星星順時針旋轉，曝光約 2 小時多，圓弧的中心是北極星","星星逆時針旋轉，曝光約 4 小時多，圓弧的中心是天球北極","星星順時針旋轉，曝光約 4 小時多，圓弧的中心是天球北極"],ans:0,why:["面北看星星逆時針轉；35°×4 分鐘＝140 分鐘，約 2 小時多；圓心是天球北極。","面向北方時是逆時針，而且圓心是天球北極，北極星自己也繞著極小的圈。","4 小時多需要約 60° 以上的圓心角。","方向和曝光時間都不對。"]},
+   {src:"講義 p18 第 11 題（100 學測）改寫",q:"從春分往後數到秋分有 186 天，從秋分往後數到隔年春分只有 179 天，相差 7 天。主要原因是什麼？",opts:["7 月時地球公轉速率比較慢","7 月時地球自轉速率比較慢","7 月時地球公轉速率比較快","7 月時地球自轉速率比較快"],ans:0,why:["7 月初地球離太陽最遠，公轉最慢，走完春分到秋分這一段要花比較多天。","這是公轉走多快的問題，和自轉無關。","如果 7 月公轉比較快，這一段應該花比較少天。","自轉速率幾乎固定，而且和這個問題無關。"]},
+   {src:"講義 p20 第 17 題（99 學測）改寫（原題為示意圖，改以文字描述）",q:"某地位於北緯 40.7°。夏至當天正午，太陽在天空中的位置何者正確？",opts:["正好在天頂","在天頂偏南 17.2° 的位置","在天頂偏北 17.2° 的位置","在天頂偏南 40.7° 的位置"],ans:1,why:["太陽在天頂只會發生在直射的緯度（夏至是北緯 23.5°）。","夏至太陽直射北緯 23.5°，在觀測地的南方；40.7−23.5＝17.2°。","直射點在觀測地的南邊，所以太陽偏南不是偏北。","偏南 40.7° 是春分或秋分（直射赤道）的情況。"]},
+   {src:"講義 p19 第 14 題（99 學測）改寫",q:"某天白天發生了日食。當天的月相是哪一種？",opts:["眉月","弦月","滿月（望）","新月（朔）"],ans:3,why:["眉月時月球不在太陽和地球的連線上。","弦月時月球和太陽夾 90°，不可能遮住太陽。","滿月時月球在地球的另一側，可能發生的是月食。","日食是月球走到太陽和地球中間，這一天就是朔。"]},
+   {src:"講義 p21 第 19 題（98 學測）改寫",q:"12 月某天傍晚，一艘船航行在日本海，船上的人看到夕陽下緣剛好碰到海面。同一時刻，在臺灣墾丁海邊的人看到的太陽是什麼樣子？",opts:["整個太陽還在海平面之上","和船上的人看到的高度相同","太陽大約一半沒入海面","太陽已經完全沒入海面"],ans:0,why:["墾丁在日本海的西南方。越西邊日落越晚，而且冬季緯度越低白天越長，所以墾丁的太陽還比較高。","兩地經度和緯度都不同，太陽高度不會相同。","墾丁的日落比較晚，太陽還沒開始沒入海面。","這是比日本海更東邊的地方才會看到的情況。"]}
+  ]}
+]},
+{id:"atm",theme:"t-atm",icon:"⛅",name:"大氣島",sub:"濕度、鋒面與颱風",ready:false,levels:[{id:"ATM-01",name:"大氣結構與能量"},{id:"ATM-02",name:"水氣、雲與濕度"},{id:"ATM-03",name:"風、氣壓與鋒面"},{id:"ATM-04",name:"颱風與天氣系統"}]},
+{id:"geo",theme:"t-geo",icon:"⛰️",name:"地質島",sub:"震波、板塊與岩層",ready:false,levels:[{id:"GEO-01",name:"地球內部與震波"},{id:"GEO-02",name:"板塊、地震與火山"},{id:"GEO-03",name:"岩石、地層與構造"},{id:"GEO-04",name:"地質年代與定年"}]},
+{id:"ocn",theme:"t-ocn",icon:"🌊",name:"海洋島",sub:"海水分層與洋流",ready:false,levels:[{id:"OCN-01",name:"海水性質與分層"},{id:"OCN-02",name:"洋流與海氣交互"}]},
+{id:"env",theme:"t-env",icon:"🌋",name:"災害島",sub:"天然災害與氣候變遷",ready:false,levels:[{id:"ENV-01",name:"天然災害"},{id:"ENV-02",name:"氣候與環境變遷"}]}
+];
+
+/* 貓島民：每關一位講解員，名字就是品種，另有官職與毛色。pat: point 重點色／tabby 虎斑／calico 三花／tuxedo 賓士／spots 豹紋／van 梵紋／bald 無毛 */
+const CATS={
+ "AST-01":{breed:"暹羅貓",title:"觀星官",fur:"#f3e3c8",dark:"#5b4031",eye:"#3d8fd6",pat:"point"},
+ "AST-02":{breed:"俄羅斯藍貓",title:"星等官",fur:"#8e9bb0",eye:"#58a857"},
+ "AST-03":{breed:"橘貓",title:"太陽官",fur:"#f0a04b",dark:"#c9722a",eye:"#6b4a1e",pat:"tabby"},
+ "AST-04":{breed:"黑貓",title:"曆法官",fur:"#2f2f38",eye:"#f2c744"},
+ "ATM-01":{breed:"波斯貓",title:"雲層官",fur:"#fbfbf8",eye:"#e39a2d",fluffy:true},
+ "ATM-02":{breed:"布偶貓",title:"露水官",fur:"#f6efe4",dark:"#8a6a55",eye:"#4a9be0",pat:"point",fluffy:true},
+ "ATM-03":{breed:"美國短毛貓",title:"風向官",fur:"#c9ccd1",dark:"#5d6168",eye:"#58a857",pat:"tabby"},
+ "ATM-04":{breed:"緬因貓",title:"颱風官",fur:"#9a6b43",dark:"#5a3a22",eye:"#d9a441",pat:"tabby",fluffy:true},
+ "GEO-01":{breed:"英國短毛貓",title:"震波官",fur:"#7f8fa6",eye:"#e08a2d"},
+ "GEO-02":{breed:"孟加拉貓",title:"板塊官",fur:"#d9a55b",dark:"#6b4520",eye:"#58a857",pat:"spots"},
+ "GEO-03":{breed:"三花貓",title:"岩層官",fur:"#fbfbf8",dark:"#2f2f38",eye:"#6b4a1e",pat:"calico"},
+ "GEO-04":{breed:"斯芬克斯貓",title:"定年官",fur:"#e8c3b0",dark:"#c79a86",eye:"#4a9be0",pat:"bald"},
+ "OCN-01":{breed:"土耳其梵貓",title:"海水官",fur:"#fbfbf8",dark:"#e08a3c",eye:"#4a9be0",pat:"van"},
+ "OCN-02":{breed:"挪威森林貓",title:"洋流官",fur:"#8b8172",dark:"#4f473c",eye:"#58a857",pat:"tabby",fluffy:true},
+ "ENV-01":{breed:"賓士貓",title:"防災官",fur:"#2f2f38",eye:"#f2c744",pat:"tuxedo"},
+ "ENV-02":{breed:"蘇格蘭摺耳貓",title:"氣候官",fur:"#c9b79c",eye:"#e08a2d",fold:true}
+};
+const EMPEROR={breed:"金吉拉",title:"喵皇",fur:"#f4f1ea",dark:"#bdb6a8",eye:"#3fae7a",fluffy:true,crown:true};
+/* 島嶼在場景中的位置與配色（六角形地塊中心座標） */
+const TILE_POS={"AST-01":[110,178],"AST-02":[179,200],"AST-03":[248,178],"AST-04":[317,200],"ATM-01":[470,152],"ATM-02":[539,174],"ATM-03":[608,152],"ATM-04":[677,174],"GEO-01":[300,338],"GEO-02":[369,360],"GEO-03":[438,338],"GEO-04":[507,360],"OCN-01":[112,330],"OCN-02":[181,352],"ENV-01":[628,338],"ENV-02":[697,360]};
+/* 跨島連線：陪跑計畫第 3 回合的四組跨單元整合主題，只做圖示，不影響闖關 */
+const LINKS=[
+ {name:"尺度與觀測",hint:"先定位置，再判斷看得到什麼",color:"#e0673a",pairs:[["AST-01","GEO-01"]]},
+ {name:"能量與平衡",hint:"恆星、大氣、海水的能量收支",color:"#f2b93b",pairs:[["AST-02","ATM-01"],["AST-02","OCN-01"]]},
+ {name:"災害鏈結",hint:"地震火山、颱風與防災",color:"#d5334a",pairs:[["ATM-04","ENV-01"],["GEO-02","ENV-01"]]},
+ {name:"時間證據",hint:"先分相對與絕對證據，再判斷因果",color:"#223a5e",pairs:[["GEO-03","ENV-02"],["GEO-04","ENV-02"]]}
+];
+const ISLE_COLOR={ast:["#7a63c8","#4c3a8a"],atm:["#93cdf0","#5f9dc8"],geo:["#cfa066","#8f6a3c"],ocn:["#58c7c2","#2f8f8c"],env:["#f0905a","#b55a2c"]};
+</script>
+
+<!-- ============ 程式區：畫面與規則 ============ -->
+<script>
+(function(){
+"use strict";
+const KEY="geoIslandsV1";
+const app=document.getElementById("app");
+const $=(h)=>{const d=document.createElement("div");d.innerHTML=h.trim();return d.firstElementChild};
+const esc=(s)=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---- 日期：全部用 YYYY-MM-DD 字串，以 UTC 計算天數避免時差 ---- */
+const params=new URLSearchParams(location.search);
+const debugDate=/^\d{4}-\d{2}-\d{2}$/.test(params.get("today")||"")?params.get("today"):null;
+function today(){
+  if(debugDate) return debugDate;
+  const d=new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function addDays(s,n){const [y,m,d]=s.split("-").map(Number);const t=new Date(Date.UTC(y,m-1,d+n));return t.toISOString().slice(0,10)}
+function fmt(s){if(!s)return "";const [y,m,d]=s.split("-");return Number(m)+"/"+Number(d)}
+
+/* ---- 進度儲存 ---- */
+let mem={};
+function load(){try{const r=localStorage.getItem(KEY);return r?JSON.parse(r):{}}catch(e){return mem}}
+function save(st){mem=st;try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+let state=load();
+/* 每關欄位：firstPass 首次通過日、base 週期基準日、stage 已通過複習次數(0-5)、due 下次到期日、retries 重做次數、last 最近一次複習結果 */
+
+/* ---- 複習規則（到期日一律由 週期基準日 + 間隔 算出） ---- */
+function passFirst(id){
+  const t=today();const s=state[id]||{retries:0};
+  s.firstPass=t;s.base=t;s.stage=0;s.due=addDays(t,INTERVALS[0]);s.last="首次通過";
+  state[id]=s;save(state);
+}
+function reviewPass(id){
+  const s=state[id];const t=today();
+  s.stage+=1;s.last=t+" 複習通過";
+  if(s.stage>=INTERVALS.length){s.due=null}
+  else{
+    let due=addDays(s.base,INTERVALS[s.stage]);
+    if(due<=t) due=addDays(t,1); // 逾期才複習時，下一次至少排在明天
+    s.due=due;
+  }
+  save(state);
+}
+function reviewFail(id){
+  const s=state[id];const t=today();
+  s.stage=Math.max(0,s.stage-1);s.base=t;s.due=addDays(t,INTERVALS[s.stage]);s.last=t+" 複習未過，退階";
+  save(state);
+}
+const passed=(id)=>!!(state[id]&&state[id].firstPass);
+const mastered=(id)=>passed(id)&&state[id].due===null;
+const isDue=(id)=>passed(id)&&state[id].due&&state[id].due<=today();
+const need=(n)=>Math.ceil(n*2/3);
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const allLevels=()=>ISLANDS.flatMap(i=>i.levels);
+function findLevel(id){for(const i of ISLANDS){const l=i.levels.find(x=>x.id===id);if(l)return [i,l]}return []}
+
+/* ---- 貓的畫法：以腳底中心為原點，約 50×56 的向量小貓 ---- */
+function catParts(c){
+  const f=c.fur,d=c.dark||c.fur,e=c.eye||"#3b3b3b",pt=c.pat==="point";
+  const line=(f==="#2f2f38")?"#f6efe4":"#3b2f2a";
+  let s="";
+  if(c.crown) s+=`<path d="M-15,-17 Q-24,3 -18,2 L18,2 Q24,3 15,-17 Z" fill="#c8323c" stroke="#8f1f28" stroke-width="1"/>`;
+  s+=`<path d="M11,-6 Q27,-7 21,-25" fill="none" stroke="${pt||c.pat==="van"?d:f}" stroke-width="${c.fluffy?7.5:5}" stroke-linecap="round"/>`;
+  s+=`<ellipse cx="0" cy="-9" rx="${c.fluffy?15:13}" ry="11" fill="${f}"/>`;
+  if(pt) s+=`<ellipse cx="-7" cy="-1" rx="4" ry="2.4" fill="${d}"/><ellipse cx="7" cy="-1" rx="4" ry="2.4" fill="${d}"/>`;
+  if(c.pat==="tuxedo") s+=`<ellipse cx="0" cy="-7" rx="6" ry="8.5" fill="#fff"/>`;
+  if(c.pat==="spots") s+=[[-7,-11],[-1,-6],[6,-12],[8,-5],[-9,-4]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="1.6" fill="${d}"/>`).join("");
+  if(c.pat==="calico") s+=`<ellipse cx="-7" cy="-9" rx="5" ry="6" fill="#e9963f"/><ellipse cx="8" cy="-6" rx="4" ry="4.5" fill="${d}"/>`;
+  if(c.pat==="tabby") s+=`<path d="M-9,-14 l5,3 M-10,-9 l5,2 M9,-14 l-5,3 M10,-9 l-5,2" stroke="${d}" stroke-width="1.6" stroke-linecap="round"/>`;
+  const earFill=(pt||c.pat==="van")?d:f;
+  const ear=c.fold?"M-12,-35 L-10,-41 L-3,-39 Z":"M-12,-33 L-9.5,-47 L-2,-38 Z";
+  s+=`<path d="${ear}" fill="${c.pat==="calico"?"#e9963f":earFill}"/><path d="${ear}" fill="${c.pat==="calico"?d:earFill}" transform="scale(-1,1)"/>`;
+  if(c.fluffy) s+=`<path d="M-13,-27 l-6,3 l6,2 Z M13,-27 l6,3 l-6,2 Z" fill="${f}"/>`;
+  s+=`<circle cx="0" cy="-28" r="${c.fluffy?14:13}" fill="${f}"/>`;
+  if(pt) s+=`<ellipse cx="0" cy="-25.5" rx="7.5" ry="6.5" fill="${d}" opacity=".9"/>`;
+  if(c.pat==="calico") s+=`<path d="M-13,-30 Q-9,-42 0,-41 Q-3,-33 -8,-27 Z" fill="#e9963f"/><path d="M13,-30 Q9,-42 1,-41 Q4,-34 9,-28 Z" fill="${d}"/>`;
+  if(c.pat==="van") s+=`<path d="M-8,-38 Q0,-44 8,-38 Q4,-33 0,-34 Q-4,-33 -8,-38 Z" fill="${d}"/>`;
+  if(c.pat==="tabby") s+=`<path d="M-4,-40 v5 M0,-41 v6 M4,-40 v5" stroke="${d}" stroke-width="1.7" stroke-linecap="round"/>`;
+  if(c.pat==="tuxedo") s+=`<ellipse cx="0" cy="-23.5" rx="7" ry="5.5" fill="#fff"/>`;
+  if(c.pat==="bald") s+=`<path d="M-5,-38 q5,-2.5 10,0 M-4,-35 q4,-2 8,0" fill="none" stroke="${d}" stroke-width="1"/>`;
+  s+=`<circle cx="-5" cy="-29" r="2.5" fill="${e}"/><circle cx="5" cy="-29" r="2.5" fill="${e}"/><circle cx="-4.3" cy="-29.8" r=".8" fill="#fff"/><circle cx="5.7" cy="-29.8" r=".8" fill="#fff"/>`;
+  s+=`<path d="M-1.6,-25 h3.2 l-1.6,1.9 Z" fill="#e58a8a"/><path d="M0,-23.1 q-2,2.4 -4,1 M0,-23.1 q2,2.4 4,1" fill="none" stroke="${pt||c.pat==="tuxedo"?"#3b2f2a":line}" stroke-width=".9" stroke-linecap="round"/>`;
+  if(c.crown) s+=`<path d="M-10,-38 L-10,-50 L-5,-44.5 L0,-53 L5,-44.5 L10,-50 L10,-38 Z" fill="#f2b93b" stroke="#b97f12" stroke-width="1" stroke-linejoin="round"/><circle cx="0" cy="-42" r="1.9" fill="#d5334a"/>`;
+  return s;
+}
+const catOf=(id)=>CATS[id];
+function catIcon(c,size){return `<svg viewBox="-30 -58 60 62" width="${size}" height="${size}" role="img" aria-label="${esc(c.breed)}">${catParts(c)}</svg>`}
+function catG(c,x,y,s,cls){return `<g transform="translate(${x},${y}) scale(${s})"><g class="${cls||""}">${catParts(c)}</g></g>`}
+function speak(id,text){
+  const c=id==="EMP"?EMPEROR:catOf(id);
+  return $(`<div class="say"><div class="ava">${catIcon(c,62)}</div><div class="bub"><b>${id==="EMP"?"喵皇":esc(c.breed)+"（"+esc(c.title)+"）"}</b><p>${esc(text)}</p></div></div>`);
+}
+
+/* ---- 畫面：群島地圖（左側立體感場景＋右側關卡索引） ---- */
+function statusText(id){
+  const s=state[id];
+  if(!passed(id)) return ["尚未挑戰","","未挑戰"];
+  if(mastered(id)) return ["已長期記住","ok","已精通"];
+  if(isDue(id)) return [`第 ${s.stage+1} 次複習到期`,"due","今日複習"];
+  return [`下次複習 ${fmt(s.due)}`,"ok","複習 "+fmt(s.due)];
+}
+function openLevel(id){isDue(id)?viewReview(id):viewNote(id)}
+function nextTarget(){
+  const ready=ISLANDS.filter(i=>i.ready).flatMap(i=>i.levels);
+  return ready.find(l=>isDue(l.id))||ready.find(l=>!passed(l.id))||ready[ready.length-1];
+}
+function hexPts(cx,cy,dy){const r=46,v=21.9;return [[cx-r,cy],[cx-r/2,cy-v],[cx+r/2,cy-v],[cx+r,cy],[cx+r/2,cy+v],[cx-r/2,cy+v]].map(p=>p[0]+","+(p[1]+(dy||0))).join(" ")}
+function sceneSVG(target){
+  const lv=allLevels();let tiles=[],labels=[];
+  ISLANDS.forEach(is=>is.levels.forEach(l=>{
+    const k=lv.indexOf(l)+1,[cx,cy]=TILE_POS[l.id],[top,side]=is.ready?ISLE_COLOR[is.id]:["#d7d9d2","#a9aea5"];
+    const cls="tile"+(is.ready?"":" locked")+(isDue(l.id)?" due":"")+(passed(l.id)?" done":"");
+    const cat=catOf(l.id),isT=target&&target.id===l.id;
+    const g=`<g class="${cls}" data-id="${l.id}" ${is.ready?'tabindex="0" role="button"':""} aria-label="${k} ${esc(l.name)}${is.ready?"":"（建造中）"}">
+      <title>${esc(cat.breed)}（${esc(cat.title)}）・${esc(l.name)}</title><polygon points="${hexPts(cx,cy,13)}" fill="${side}"/><polygon class="face" points="${hexPts(cx,cy)}" fill="${top}"/>
+      <polygon class="ring" points="${hexPts(cx,cy)}" fill="none" stroke="${passed(l.id)?"#f2b93b":"rgba(255,255,255,.35)"}" stroke-width="${passed(l.id)?3:1.2}"/>
+      <ellipse cx="${cx+(isT?13:0)}" cy="${cy+5}" rx="11" ry="3.5" fill="rgba(0,0,0,.18)"/>
+      <g ${is.ready?"":'opacity=".55"'}>${catG(cat,cx+(isT?13:0),cy+4,.62,"bob b"+(k%3+1))}</g>
+      ${passed(l.id)?`<text x="${cx+30}" y="${cy-2}" font-size="15">🚩</text>`:""}
+      ${isT?`<ellipse cx="${cx-17}" cy="${cy+13}" rx="14" ry="4.5" fill="rgba(0,0,0,.2)"/>${catG(EMPEROR,cx-17,cy+12,.82,"emp")}`:""}
+    </g>`;
+    tiles.push([cy,g]);
+    const up=(cy===Math.min(...is.levels.map(x=>TILE_POS[x.id][1])));
+    const w=30+l.name.length*11.5,ly=up?cy-(isT?62:50):cy+40;
+    labels.push(`<g pointer-events="none"><rect x="${cx-w/2}" y="${ly}" width="${w}" height="19" rx="9.5" fill="#fffaf5" stroke="#eadfd3"/><text x="${cx-w/2+8}" y="${ly+13.5}" font-size="10.5" font-weight="800" fill="#e0673a" font-style="italic">${String(k).padStart(2,"0")}</text><text x="${cx-w/2+25}" y="${ly+13.5}" font-size="10.5" font-weight="700" fill="${is.ready?"#1f1a17":"#8c8379"}">${esc(l.name)}</text></g>`);
+  }));
+  tiles.sort((a,b)=>a[0]-b[0]);
+  const links=LINKS.map(L=>L.pairs.map(([a,b])=>{const [x1,y1]=TILE_POS[a],[x2,y2]=TILE_POS[b],mx=(x1+x2)/2,my=(y1+y2)/2-34;const d=`M${x1},${y1} Q${mx},${my} ${x2},${y2}`;
+    return `<path d="${d}" fill="none" stroke="#fffaf5" stroke-width="6" opacity=".55" stroke-linecap="round"/><path class="flow" d="${d}" fill="none" stroke="${L.color}" stroke-width="2.8" stroke-dasharray="7 6" stroke-linecap="round"/>`}).join("")).join("");
+  const names=ISLANDS.map(is=>{const ps=is.levels.map(l=>TILE_POS[l.id]);const x=ps.reduce((a,p)=>a+p[0],0)/ps.length,y=Math.max(...ps.map(p=>p[1]))+ (is.levels.length>2?82:80);
+    return `<text x="${x}" y="${y}" text-anchor="middle" font-size="13" font-weight="900" letter-spacing="4" fill="#fff" opacity=".92">${is.icon} ${esc(is.name)}${is.ready?"":"・建造中"}</text>`}).join("");
+  return `<svg class="scene" viewBox="0 -42 800 542" xmlns="http://www.w3.org/2000/svg" aria-label="地科群島地圖">
+    <defs><linearGradient id="lake" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7cc3cc"/><stop offset="1" stop-color="#4f9fb0"/></linearGradient>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef0dc"/><stop offset="1" stop-color="#c9d6ad"/></linearGradient></defs>
+    <rect y="-42" width="800" height="542" fill="url(#sky)"/>
+    <path d="M0,70 Q90,20 190,62 T400,48 T610,58 T800,40 V-42 H0 Z" fill="#dfe6c6"/>
+    <path d="M20,150 Q60,70 240,78 Q420,40 600,70 Q790,80 785,240 Q800,400 640,440 Q420,480 200,455 Q10,440 15,280 Z" fill="url(#lake)"/>
+    <path d="M20,150 Q60,70 240,78 Q420,40 600,70 Q790,80 785,240" fill="none" stroke="#f3ead2" stroke-width="5" opacity=".7"/>
+    <path d="M0,500 V400 Q70,410 150,470 L190,500 Z M800,500 V410 Q720,430 660,470 L610,500 Z" fill="#b9c99a"/>
+    ${[[40,440],[70,462],[105,480],[760,455],[730,476],[690,488]].map(p=>`<path d="M${p[0]},${p[1]} l-9,20 h18 Z" fill="#7f9f6a"/><rect x="${p[0]-1.5}" y="${p[1]+20}" width="3" height="5" fill="#7a5a3a"/>`).join("")}
+    ${[[110,52,34],[330,30,26],[560,40,38],[730,96,24]].map(p=>`<g opacity=".9"><ellipse cx="${p[0]}" cy="${p[1]}" rx="${p[2]}" ry="${p[2]*.36}" fill="#fff"/><ellipse cx="${p[0]+p[2]*.5}" cy="${p[1]+5}" rx="${p[2]*.7}" ry="${p[2]*.28}" fill="#fff"/></g>`).join("")}
+    ${[[410,250],[250,300],[560,270],[380,440]].map((p,i)=>`<g class="boat" style="animation-delay:-${i*2.3}s"><path d="M${p[0]-9},${p[1]} h18 l-4,5 h-10 Z" fill="#fffaf5"/><path d="M${p[0]},${p[1]-1} v-12 l8,10 Z" fill="#e0673a"/></g>`).join("")}
+    ${[[70,250],[440,110],[720,270],[300,430],[540,430]].map(p=>`<path d="M${p[0]},${p[1]} q6,-4 12,0 t12,0" fill="none" stroke="#fff" stroke-width="1.6" opacity=".5"/>`).join("")}
+    ${names}<g class="links">${links}</g>${tiles.map(t=>t[1]).join("")}${labels.join("")}
+  </svg>`;
+}
+function viewMap(){
+  window.scrollTo(0,0);app.className="wrap wide";
+  const lv=allLevels();
+  const nPass=lv.filter(l=>passed(l.id)).length,nDue=lv.filter(l=>isDue(l.id)).length,nMaster=lv.filter(l=>mastered(l.id)).length;
+  const nIsle=ISLANDS.filter(i=>i.levels.every(l=>passed(l.id))).length;
+  const target=nextTarget();
+  app.innerHTML="";
+  if(debugDate) app.append($(`<div class="banner debug">測試模式：把今天當成 ${esc(debugDate)}。正式使用請拿掉網址後面的 ?today=</div>`));
+  const world=$(`<div class="world"><div class="scene-box"><div class="scene-scroll">${sceneSVG(target)}</div>
+    <div class="legend"><b>跨島連線</b>${LINKS.map(L=>`<span title="${esc(L.hint)}"><i style="background:${L.color}"></i>${esc(L.name)}</span>`).join("")}<button class="lgbtn" id="lg" aria-pressed="true">隱藏連線</button></div>
+    <div class="scene-brand"><i>GEO ISLANDS</i><b>地科群島</b></div><div class="scene-hint">點一塊島，貓島民會為喵皇講解</div></div>
+    <aside class="side"><div class="eyebrow">THE GEO INDEX</div><h1>喵皇出巡，一島一島拿下。</h1><p class="lead">5 座島／16 關。每關由一位貓島民講解，答對情境題就收服那一關。</p>
+    <button class="me ${nDue?"due":""}" id="me"><span>${catIcon(EMPEROR,54)}</span><span><b>喵皇</b><small>${nDue?`⏰ 今天有 ${nDue} 關該複習，先去「${esc(target.name)}」`:(passed(target.id)?"目前開放的關卡都拿下了":`下一站：${esc(target.name)}`)}</small></span></button>
+    <div class="mini"><div><b>${nPass}/${lv.length}</b><span>已收服</span></div><div><b>${nIsle}/5</b><span>整島制霸</span></div><div><b>${nDue}</b><span>今日複習</span></div><div><b>${nMaster}</b><span>已精通</span></div></div>
+    <div id="list"></div>
+    <p class="foot" style="text-align:left;margin-top:14px">進度只存在這台裝置的瀏覽器裡，換裝置前請先按右上角「進度備份」。題目依講義所附歷屆學測試題改寫，原題請對照講義頁碼。</p></aside></div>`);
+  const list=world.querySelector("#list");
+  ISLANDS.forEach(is=>{
+    const done=is.levels.filter(l=>passed(l.id)).length;
+    list.append($(`<div class="grp"><span>${is.icon} ${esc(is.name)}${done===is.levels.length?" 👑":""}</span><span>${is.ready?done+"/"+is.levels.length:"建造中"}</span></div>`));
+    is.levels.forEach(l=>{
+      const k=lv.indexOf(l)+1,c=catOf(l.id),[txt,cls,short]=statusText(l.id);
+      const b=$(`<button class="item" ${is.ready?"":"disabled"}><span class="no">${String(k).padStart(2,"0")}</span><span class="nm">${esc(l.name)}<small>${esc(c.breed)}（${esc(c.title)}）${is.ready?"・"+esc(txt):""}</small></span><span class="st ${cls}">${is.ready?esc(short):"🔒"}</span></button>`);
+      if(is.ready) b.onclick=()=>openLevel(l.id);
+      list.append(b);
+    });
+  });
+  world.querySelectorAll(".tile:not(.locked)").forEach(t=>{
+    const go=()=>openLevel(t.dataset.id);
+    t.addEventListener("click",go);
+    t.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});
+  });
+  world.querySelector("#lg").onclick=(e)=>{const g=world.querySelector(".links"),off=g.style.display!=="none";g.style.display=off?"none":"";e.target.textContent=off?"顯示連線":"隱藏連線";e.target.setAttribute("aria-pressed",String(!off))};
+  world.querySelector("#me").onclick=()=>openLevel(target.id);
+  app.append(world);
+  const sc=world.querySelector(".scene-scroll");
+  if(sc.scrollWidth>sc.clientWidth){const x=TILE_POS[target.id][0]/800*sc.scrollWidth;sc.scrollLeft=Math.max(0,x-sc.clientWidth/2)}
+}
+function viewIsland(){goHome()}
+function setTheme(is){
+  const map={"t-ast":["#5a3d9a","#f0ecfa"],"t-atm":["#1f7fc4","#e8f4fd"],"t-geo":["#8a5524","#f8efe3"],"t-ocn":["#087f8f","#e3f6f5"],"t-env":["#b6421f","#fdeee4"]};
+  const [a,s]=is?map[is.theme]:["#e0673a","#fff3ea"];
+  document.documentElement.style.setProperty("--accent",a);
+  document.documentElement.style.setProperty("--soft",s);
+  if(is) app.className="wrap";
+}
+function goHome(){setTheme(null);viewMap()}
+
+/* ---- 畫面：白話筆記 ---- */
+function viewNote(id){
+  window.scrollTo(0,0);
+  const [is,l]=findLevel(id);setTheme(is);
+  const s=state[id];
+  app.innerHTML="";
+  app.append($(`<div class="hero ${is.theme}"><h2>${esc(l.name)}</h2><p>${esc(l.id)}・${esc(l.pages)}・白話筆記</p></div>`));
+  app.append(speak(id,`喵～參見喵皇陛下。我是${catOf(id).breed}，在島上擔任${catOf(id).title}。「${l.name}」這一關由我來講解。聽完筆記，再接受我的考驗。`));
+  const c=$(`<div class="card"><h3>📖 先看懂這幾件事</h3><ul>${l.note.core.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+    <h4>⚠️ 常見陷阱</h4>${l.note.trap.map(x=>`<div class="trap">${esc(x)}</div>`).join("")}</div>`);
+  app.append(c);
+  if(passed(id)){
+    app.append($(`<div class="card"><h3>📅 這一關的複習紀錄</h3><table class="sched">
+      <tr><th>首次通過</th><td>${esc(s.firstPass)}</td></tr><tr><th>週期基準日</th><td>${esc(s.base)}</td></tr>
+      <tr><th>已通過複習</th><td>${s.stage} / 5 次</td></tr><tr><th>下次到期</th><td>${s.due?esc(s.due):"不再排程（已長期記住）"}</td></tr>
+      <tr><th>首次挑戰重做</th><td>${s.retries||0} 次</td></tr><tr><th>最近結果</th><td>${esc(s.last||"")}</td></tr></table></div>`));
+  }
+  const row=$(`<div class="row"><button class="btn" id="go">${passed(id)?"再練一次（不影響複習排程）":"看完了，開始闖關 →"}</button><button class="btn ghost" id="back">← 回群島地圖</button></div>`);
+  app.append(row);
+  row.querySelector("#go").onclick=()=>viewQuiz(id,"first");
+  row.querySelector("#back").onclick=()=>viewIsland(is.id);
+}
+
+/* ---- 畫面：作答（mode: first 首次闖關或練習／review 複習） ---- */
+function viewQuiz(id,mode){
+  const [is,l]=findLevel(id);setTheme(is);
+  const pool=shuffle(l.qs);
+  const qs=mode==="review"?pool.slice(0,Math.min(2,pool.length)):pool;
+  const marks=[];let k=0;
+  function draw(){
+    window.scrollTo(0,0);
+    const q=qs[k];
+    const order=shuffle(q.opts.map((_,i)=>i));
+    app.innerHTML="";
+    app.append($(`<div class="hero ${is.theme}"><h2>${esc(l.name)}</h2><p>${mode==="review"?"閉卷複習：先在心裡回想重點，再作答":"情境題"}・第 ${k+1} / ${qs.length} 題</p></div>`));
+    const card=$(`<div class="card"><div class="steps">${qs.map((_,i)=>`<i class="${i<k?(marks[i]?"ok":"no"):(i===k?"on":"")}"></i>`).join("")}</div>
+      <div class="src">${esc(q.src)}</div><div class="q">${esc(q.q)}</div><div id="opts"></div><div class="row" id="nextRow" hidden><button class="btn" id="next">${k+1<qs.length?"下一題 →":"看結果 →"}</button></div></div>`);
+    const box=card.querySelector("#opts");
+    order.forEach((oi,pos)=>{
+      const b=$(`<button class="opt">（${"ABCD"[pos]}）${esc(q.opts[oi])}</button>`);
+      b.dataset.i=oi;
+      b.onclick=()=>{
+        const ok=oi===q.ans;marks[k]=ok;
+        box.querySelectorAll(".opt").forEach(o=>{
+          const i=Number(o.dataset.i);o.disabled=true;
+          if(i===q.ans)o.classList.add("right");else if(o===b)o.classList.add("wrong");
+          o.after($(`<div class="why ${i===q.ans?"right":""}">${i===q.ans?"✓ 正確：":"✗ "}${esc(q.why[i])}</div>`));
+        });
+        card.querySelector("#nextRow").before(speak(id,ok?"答對了，陛下英明！":"陛下別急，看看綠色那一項的說明。"));
+        card.querySelector("#nextRow").hidden=false;
+        card.querySelector("#next").focus();
+      };
+      box.append(b);
+    });
+    card.querySelector("#next").onclick=()=>{k++;k<qs.length?draw():finish()};
+    app.append(card);
+  }
+  function finish(){
+    const right=marks.filter(Boolean).length;
+    mode==="review"?reviewResult(id,right,qs.length):firstResult(id,right,qs.length);
+  }
+  draw();
+}
+function firstResult(id,right,n){
+  window.scrollTo(0,0);
+  const [is,l]=findLevel(id);
+  const ok=right>=need(n);const was=passed(id);
+  if(!was){
+    if(ok) passFirst(id);
+    else{const s=state[id]||{retries:0};s.retries=(s.retries||0)+1;state[id]=s;save(state)}
+  }
+  const islandDone=is.levels.every(x=>passed(x.id));
+  app.innerHTML="";
+  const c=$(`<div class="card result">${ok?`<div class="badge">${catIcon(catOf(id),92)}</div><h3>${was?"練習完成":"過關！拿到「"+esc(l.name)+"」徽章"}</h3>`:`<div class="big">💪</div><h3>差一點，再試一次</h3>`}
+    <p>答對 ${right} / ${n} 題（過關門檻 ${need(n)} 題）</p>
+    ${ok&&!was?`<p>下次複習日：<b>${esc(state[id].due)}</b>，到時候這一關會閃爍提醒。</p>`:""}
+    ${ok&&!was&&islandDone?`<p>👑 ${esc(is.name)}全部通過，島徽章到手！</p>`:""}
+    ${!ok?`<p>題目順序會重新洗牌。可以先回去再看一次筆記。</p>`:""}
+    <div class="row" style="justify-content:center">${ok?"":`<button class="btn" id="retry">重新挑戰</button><button class="btn ghost" id="note">回去看筆記</button>`}<button class="btn ${ok?"":"ghost"}" id="back">回群島地圖</button></div></div>`);
+  c.prepend(speak(id,ok?(was?"陛下複習得真勤，佩服佩服。":"臣服了！這一關從今天起歸喵皇陛下所有。"):"陛下，這次差一點。再聽我講一次筆記吧。"));
+  app.append(c);
+  c.querySelector("#back").onclick=()=>viewIsland(is.id);
+  if(!ok){c.querySelector("#retry").onclick=()=>viewQuiz(id,"first");c.querySelector("#note").onclick=()=>viewNote(id)}
+}
+
+/* ---- 畫面：複習 ---- */
+function viewReview(id){
+  window.scrollTo(0,0);
+  const [is,l]=findLevel(id);setTheme(is);const s=state[id];
+  app.innerHTML="";
+  app.append($(`<div class="hero ${is.theme}"><h2>⏰ 複習：${esc(l.name)}</h2><p>第 ${s.stage+1} 次複習・不要先看筆記</p></div>`));
+  const c=$(`<div class="card"><h3>先閉卷回想 30 秒</h3><p>在心裡講一次這一關的重點和最容易錯的地方，然後回答 2 題。全部答對而且你覺得自己記得，才算通過。</p>
+    <div class="row"><button class="btn" id="go">我回想好了，開始 →</button><button class="btn ghost" id="back">← 回群島地圖</button></div></div>`);
+  c.prepend(speak(id,"陛下，又見面了。先別翻筆記，閉上眼睛回想我教過的重點。"));
+  app.append(c);
+  c.querySelector("#go").onclick=()=>viewQuiz(id,"review");
+  c.querySelector("#back").onclick=()=>viewIsland(is.id);
+}
+function reviewResult(id,right,n){
+  window.scrollTo(0,0);
+  const [is,l]=findLevel(id);
+  app.innerHTML="";
+  if(right<n){
+    reviewFail(id);showOutcome(false,`答對 ${right} / ${n} 題。`);
+    return;
+  }
+  const c=$(`<div class="card result"><div class="big">🤔</div><h3>題目全對。老實說，剛剛回想時你記得重點嗎？</h3>
+    <div class="row" style="justify-content:center"><button class="btn" id="yes">記得</button><button class="btn bad" id="no">其實不太記得</button></div></div>`);
+  app.append(c);
+  c.querySelector("#yes").onclick=()=>{reviewPass(id);showOutcome(true,"")};
+  c.querySelector("#no").onclick=()=>{reviewFail(id);showOutcome(false,"你選了「不太記得」。")};
+  function showOutcome(ok,msg){
+    const s=state[id];app.innerHTML="";
+    const o=$(`<div class="card result">${ok?`<div class="badge">${catIcon(catOf(id),92)}</div><h3>複習通過</h3><p>${s.due?`已通過 ${s.stage} / 5 次複習，下次複習日：<b>${esc(s.due)}</b>`:"五次複習全部完成，這一關已經長期記住了 🎉"}</p>`
+      :`<div class="big">📖</div><h3>沒關係，退一階重新累積</h3><p>${esc(msg)}複習階段退回 ${s.stage}，下次複習日：<b>${esc(s.due)}</b>。建議現在把筆記再看一次。</p>`}
+      <div class="row" style="justify-content:center">${ok?"":`<button class="btn" id="note">看筆記</button>`}<button class="btn ${ok?"":"ghost"}" id="back">回群島地圖</button></div></div>`);
+    o.prepend(speak(id,ok?"陛下果然沒忘，臣很欣慰。":"沒關係，陛下日理萬機。我們退一步，重新記牢。"));
+    app.append(o);
+    o.querySelector("#back").onclick=()=>viewIsland(is.id);
+    if(!ok)o.querySelector("#note").onclick=()=>viewNote(id);
+  }
+}
+
+/* ---- 畫面：進度備份（匯出／匯入） ---- */
+function viewSave(){
+  window.scrollTo(0,0);setTheme(null);app.className="wrap";
+  const json=JSON.stringify({app:KEY,exported:today(),state},null,1);
+  app.innerHTML="";
+  const c=$(`<div class="card"><h3>💾 進度備份</h3><p>進度只存在這台裝置的瀏覽器裡。建議每週匯出一次，換手機或電腦時用匯入帶過去。</p>
+    <h4>匯出</h4><div class="row"><button class="btn" id="dl">下載備份檔</button><button class="btn ghost" id="cp">複製成文字</button></div>
+    <h4>匯入</h4><p style="font-size:14px;margin:4px 0">選擇備份檔，或把備份文字貼在下面。匯入會覆蓋目前的進度。</p>
+    <input type="file" id="file" accept=".json,application/json"><textarea id="ta" placeholder="把備份文字貼在這裡" style="margin-top:8px"></textarea>
+    <div class="row"><button class="btn" id="imp">匯入並覆蓋</button><button class="btn bad" id="reset">清除全部進度</button><button class="btn ghost" id="back">← 回群島地圖</button></div>
+    <p id="msg" style="font-weight:700"></p></div>`);
+  app.append(c);
+  const msg=(t)=>c.querySelector("#msg").textContent=t;
+  c.querySelector("#dl").onclick=()=>{
+    try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([json],{type:"application/json"}));a.download="地科群島進度_"+today()+".json";document.body.append(a);a.click();a.remove();msg("已下載備份檔。")}
+    catch(e){c.querySelector("#ta").value=json;msg("這個瀏覽器不能下載，請改為複製下方文字自行保存。")}
+  };
+  c.querySelector("#cp").onclick=()=>{
+    c.querySelector("#ta").value=json;c.querySelector("#ta").select();
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(json).then(()=>msg("已複製，請貼到記事本或訊息裡保存。"),()=>msg("請手動複製下方文字。"))}
+    else msg("請手動複製下方文字。");
+  };
+  c.querySelector("#file").onchange=(e)=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{c.querySelector("#ta").value=r.result;msg("已讀入檔案，請按「匯入並覆蓋」。")};r.readAsText(f)};
+  c.querySelector("#imp").onclick=()=>{
+    try{
+      const o=JSON.parse(c.querySelector("#ta").value);
+      if(!o||o.app!==KEY||typeof o.state!=="object"||o.state===null) throw new Error("格式不符");
+      const ids=new Set(allLevels().map(l=>l.id));const clean={};
+      for(const k of Object.keys(o.state)) if(ids.has(k)) clean[k]=o.state[k];
+      state=clean;save(state);msg("匯入完成，共 "+Object.keys(clean).length+" 關的紀錄。");
+    }catch(e){msg("匯入失敗：內容不是這個網頁的備份。")}
+  };
+  c.querySelector("#reset").onclick=()=>{if(confirm("確定要清除全部進度嗎？這個動作無法復原，建議先匯出備份。")){state={};save(state);msg("已清除全部進度。")}};
+  c.querySelector("#back").onclick=goHome;
+}
+
+document.getElementById("homeBtn").onclick=goHome;
+document.getElementById("saveBtn").onclick=viewSave;
+window.__geo={get state(){return state},today,addDays,passFirst,reviewPass,reviewFail,isDue}; // 驗收測試用
+viewMap();
+})();
+</script>
+</body>
+</html>
