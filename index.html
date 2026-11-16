@@ -252,7 +252,8 @@ const CATS={
  "ENV-01":{breed:"賓士貓",title:"防災官",fur:"#2f2f38",eye:"#f2c744",pat:"tuxedo"},
  "ENV-02":{breed:"蘇格蘭摺耳貓",title:"氣候官",fur:"#c9b79c",eye:"#e08a2d",fold:true}
 };
-const EMPEROR={breed:"金吉拉",title:"喵皇",fur:"#f4f1ea",dark:"#bdb6a8",eye:"#3fae7a",fluffy:true,crown:true};
+/* 喵皇：依 Owner 提供的照片配色繪製，長毛棕灰虎斑、白胸白襪、白口鼻、琥珀色眼睛 */
+const EMPEROR={breed:"喵皇",title:"喵皇",fur:"#8d7c69",dark:"#4a3e34",eye:"#e39a2d",pat:"royal",fluffy:true,crown:true};
 /* 島嶼在場景中的位置與配色（六角形地塊中心座標） */
 const TILE_POS={"AST-01":[110,178],"AST-02":[179,200],"AST-03":[248,178],"AST-04":[317,200],"ATM-01":[470,152],"ATM-02":[539,174],"ATM-03":[608,152],"ATM-04":[677,174],"GEO-01":[300,338],"GEO-02":[369,360],"GEO-03":[438,338],"GEO-04":[507,360],"OCN-01":[112,330],"OCN-02":[181,352],"ENV-01":[628,338],"ENV-02":[697,360]};
 /* 跨島連線：陪跑計畫第 3 回合的四組跨單元整合主題，只做圖示，不影響闖關 */
@@ -328,8 +329,9 @@ function catParts(c){
   const line=(f==="#2f2f38")?"#f6efe4":"#3b2f2a";
   let s="";
   if(c.crown) s+=`<path d="M-15,-17 Q-24,3 -18,2 L18,2 Q24,3 15,-17 Z" fill="#c8323c" stroke="#8f1f28" stroke-width="1"/>`;
-  s+=`<path d="M11,-6 Q27,-7 21,-25" fill="none" stroke="${pt||c.pat==="van"?d:f}" stroke-width="${c.fluffy?7.5:5}" stroke-linecap="round"/>`;
+  s+=`<path d="M11,-6 Q27,-7 21,-25" fill="none" stroke="${pt||c.pat==="van"||c.pat==="royal"?d:f}" stroke-width="${c.fluffy?7.5:5}" stroke-linecap="round"/>`;
   s+=`<ellipse cx="0" cy="-9" rx="${c.fluffy?15:13}" ry="11" fill="${f}"/>`;
+  if(c.pat==="royal") s+=`<path d="M-12,-13 l4,3 M-13,-8 l4,2 M12,-13 l-4,3 M13,-8 l-4,2" stroke="${d}" stroke-width="1.8" stroke-linecap="round"/><path d="M-8,-18 Q0,-13 8,-18 Q10.5,-6 5,0 L-5,0 Q-10.5,-6 -8,-18 Z" fill="#fbf7f0"/><ellipse cx="-5.5" cy="-.6" rx="4.2" ry="2.6" fill="#fff"/><ellipse cx="5.5" cy="-.6" rx="4.2" ry="2.6" fill="#fff"/>`;
   if(pt) s+=`<ellipse cx="-7" cy="-1" rx="4" ry="2.4" fill="${d}"/><ellipse cx="7" cy="-1" rx="4" ry="2.4" fill="${d}"/>`;
   if(c.pat==="tuxedo") s+=`<ellipse cx="0" cy="-7" rx="6" ry="8.5" fill="#fff"/>`;
   if(c.pat==="spots") s+=[[-7,-11],[-1,-6],[6,-12],[8,-5],[-9,-4]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="1.6" fill="${d}"/>`).join("");
@@ -340,6 +342,7 @@ function catParts(c){
   s+=`<path d="${ear}" fill="${c.pat==="calico"?"#e9963f":earFill}"/><path d="${ear}" fill="${c.pat==="calico"?d:earFill}" transform="scale(-1,1)"/>`;
   if(c.fluffy) s+=`<path d="M-13,-27 l-6,3 l6,2 Z M13,-27 l6,3 l-6,2 Z" fill="${f}"/>`;
   s+=`<circle cx="0" cy="-28" r="${c.fluffy?14:13}" fill="${f}"/>`;
+  if(c.pat==="royal") s+=`<path d="M-13,-25 l-7,4 l7,1.5 Z M13,-25 l7,4 l-7,1.5 Z" fill="#b9ab98"/><path d="M-5,-40 v4.5 M0,-41 v5 M5,-40 v4.5 M-12,-31 h4 M12,-31 h-4" stroke="${d}" stroke-width="1.6" stroke-linecap="round"/><path d="M-1.6,-36 Q0,-38 1.6,-36 L3,-28 Q8.5,-26 7.5,-22 Q4,-17.8 0,-18.3 Q-4,-17.8 -7.5,-22 Q-8.5,-26 -3,-28 Z" fill="#fbf7f0"/><path d="M-9.5,-44.5 l2.3,5.5 M9.5,-44.5 l-2.3,5.5" stroke="#f1e9dc" stroke-width="1.6" stroke-linecap="round"/>`;
   if(pt) s+=`<ellipse cx="0" cy="-25.5" rx="7.5" ry="6.5" fill="${d}" opacity=".9"/>`;
   if(c.pat==="calico") s+=`<path d="M-13,-30 Q-9,-42 0,-41 Q-3,-33 -8,-27 Z" fill="#e9963f"/><path d="M13,-30 Q9,-42 1,-41 Q4,-34 9,-28 Z" fill="${d}"/>`;
   if(c.pat==="van") s+=`<path d="M-8,-38 Q0,-44 8,-38 Q4,-33 0,-34 Q-4,-33 -8,-38 Z" fill="${d}"/>`;
